@@ -6,6 +6,18 @@ import zipfile
 import tempfile
 app = Flask(__name__)
 
+from docx.oxml.ns import qn
+from docx.shared import Pt
+
+def set_aptos_font(paragraphs):
+    for para in paragraphs:
+        for run in para.runs:
+            run.font.name = 'Aptos'
+            run.font.size = Pt(12)  # You can adjust default size
+            # For compatibility (Word will save both):
+            r = run._element
+            r.rPr.rFonts.set(qn('w:eastAsia'), 'Aptos')
+
 def update_word_file(promoter_name, project_name, registration_no):
     from docx import Document
     import os
@@ -60,6 +72,13 @@ def update_word_file(promoter_name, project_name, registration_no):
             for cell in row.cells:
                 replace_text_with_bold(cell.paragraphs, replacements)
 
+    # Set Aptos font everywhere
+    set_aptos_font(doc.paragraphs)
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                set_aptos_font(cell.paragraphs)
+
     sanitized_name = promoter_name.replace(" ", "_")
     filename = f"{sanitized_name}complaintDeclaration.docx"
     output_path = os.path.join(output_folder, filename)
@@ -77,7 +96,7 @@ def generate_no_complaint_file(promoter_name, project_name, registration_no, dat
     os.makedirs(output_folder, exist_ok=True)
 
     doc = Document(template_path)
-    date = datetime.strptime(date, "%d-%m-%Y").strftime("%d-%m-%Y")
+    date = datetime.strptime(date, "%Y-%m-%d").strftime("%d-%m-%Y")
 
     # Map of placeholders to replacement values
     replacements = {
@@ -123,6 +142,13 @@ def generate_no_complaint_file(promoter_name, project_name, registration_no, dat
             for cell in row.cells:
                 replace_text_with_bold(cell.paragraphs, replacements)
 
+    # Set Aptos font everywhere
+    set_aptos_font(doc.paragraphs)
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                set_aptos_font(cell.paragraphs)
+
     sanitized_name = promoter_name.replace(" ", "_")
     filename = f"{sanitized_name}_noComplaintsDeclaration.docx"
     output_path = os.path.join(output_folder, filename)
@@ -141,8 +167,8 @@ def update_extension_application(date, registration_no, extension_date, promoter
     os.makedirs(output_folder, exist_ok=True)
 
     doc = Document(template_path)
-    date = datetime.strptime(date, "%d-%m-%Y").strftime("%d-%m-%Y")
-    extension_date = datetime.strptime(extension_date, "%d-%m-%Y").strftime("%d-%m-%Y")
+    date = datetime.strptime(date, "%Y-%m-%d").strftime("%d-%m-%Y")
+    extension_date = datetime.strptime(extension_date, "%Y-%m-%d").strftime("%d-%m-%Y")
 
     # Map of placeholders to replacement values
     replacements = {
@@ -188,6 +214,13 @@ def update_extension_application(date, registration_no, extension_date, promoter
             for cell in row.cells:
                 replace_text_with_bold(cell.paragraphs, replacements)
 
+    # Set Aptos font everywhere
+    set_aptos_font(doc.paragraphs)
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                set_aptos_font(cell.paragraphs)
+
     sanitized_name = promoter_name.replace(" ", "_")
     filename = f"{sanitized_name}_Extension Application.docx"
     output_path = os.path.join(output_folder, filename)
@@ -206,7 +239,7 @@ def update_project_pert_file(project_name, registration_no, extension_date, prom
     os.makedirs(output_folder, exist_ok=True)
 
     doc = Document(template_path)
-    extension_date = datetime.strptime(extension_date, "%d-%m-%Y").strftime("%d-%m-%Y")
+    extension_date = datetime.strptime(extension_date, "%Y-%m-%d").strftime("%d-%m-%Y")
 
     # Map of placeholders to replacement values
     replacements = {
@@ -252,6 +285,13 @@ def update_project_pert_file(project_name, registration_no, extension_date, prom
             for cell in row.cells:
                 replace_text_with_bold(cell.paragraphs, replacements)
 
+    # Set Aptos font everywhere
+    set_aptos_font(doc.paragraphs)
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                set_aptos_font(cell.paragraphs)
+
     sanitized_name = promoter_name.replace(" ", "_")
     filename = f"{sanitized_name}_projectPert.docx"
     output_path = os.path.join(output_folder, filename)
@@ -265,7 +305,7 @@ def update_cersai_file(promoter_name, project_name, office_address, project_addr
     import os
     from datetime import datetime
 
-    date = datetime.strptime(date, "%d-%m-%Y").strftime("%d-%m-%Y")
+    date = datetime.strptime(date, "%Y-%m-%d").strftime("%d-%m-%Y")
     # Template and output folder
     template_path = os.path.join('resources','CERSAI Declaration.docx')
     output_folder = os.path.join('generated','CERSAI_Declaration')
@@ -317,6 +357,13 @@ def update_cersai_file(promoter_name, project_name, office_address, project_addr
             for cell in row.cells:
                 replace_text_with_bold(cell.paragraphs, replacements)
 
+    # Set Aptos font everywhere
+    set_aptos_font(doc.paragraphs)
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                set_aptos_font(cell.paragraphs)
+
     # Save file
     sanitized_name = promoter_name.replace(" ", "_")
     filename = f"{sanitized_name}_CERSAI DECLARATION.docx"
@@ -331,7 +378,7 @@ def update_authorization_letter(promoter_name, project_name, date):
     import os
     from datetime import datetime
 
-    date = datetime.strptime(date, "%d-%m-%Y").strftime("%d-%m-%Y")
+    date = datetime.strptime(date, "%Y-%m-%d").strftime("%d-%m-%Y")
 
     template_path = os.path.join('resources', 'AUTHORIZATION LETTER.docx')
     output_folder = os.path.join('generated', 'Authorization')
@@ -382,6 +429,13 @@ def update_authorization_letter(promoter_name, project_name, date):
             for cell in row.cells:
                 replace_text_with_bold(cell.paragraphs, replacements)
 
+    # Set Aptos font everywhere
+    set_aptos_font(doc.paragraphs)
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                set_aptos_font(cell.paragraphs)
+
     sanitized_name = promoter_name.replace(" ", "_")
     filename = f"{sanitized_name}_Authorization_Letter.docx"
     output_path = os.path.join(output_folder, filename)
@@ -394,7 +448,7 @@ def update_annexure_a(promoter_name, date):
     import os
     from datetime import datetime
 
-    date = datetime.strptime(date, "%d-%m-%Y").strftime("%d-%m-%Y")
+    date = datetime.strptime(date, "%Y-%m-%d").strftime("%d-%m-%Y")
 
     template_path = os.path.join('resources', 'Annexure A.docx')
     output_folder = os.path.join('generated', 'Annexure_A')
@@ -443,6 +497,13 @@ def update_annexure_a(promoter_name, date):
         for row in table.rows:
             for cell in row.cells:
                 replace_text_with_bold(cell.paragraphs, replacements)
+
+    # Set Aptos font everywhere
+    set_aptos_font(doc.paragraphs)
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                set_aptos_font(cell.paragraphs)
 
     sanitized_name = promoter_name.replace(" ", "_")
     filename = f"{sanitized_name}_Annexure_a.docx"
@@ -506,6 +567,13 @@ def update_AffidavitReason_for_Extension(promoter_name, project_name, registrati
             for cell in row.cells:
                 replace_text_with_bold(cell.paragraphs, replacements)
 
+    # Set Aptos font everywhere
+    set_aptos_font(doc.paragraphs)
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                set_aptos_font(cell.paragraphs)
+
     sanitized_name = promoter_name.replace(" ", "_")
     filename = f"{sanitized_name}_AffidavitReason_for_Extension.docx"
     output_path = os.path.join(output_folder, filename)
@@ -524,7 +592,7 @@ def update_consent_Extension_Tabular(promoter_name, project_name, registration_n
     os.makedirs(output_folder, exist_ok=True)
 
     doc = Document(template_path)
-    extension_date = datetime.strptime(extension_date, "%d-%m-%Y").strftime("%d-%m-%Y")
+    extension_date = datetime.strptime(extension_date, "%Y-%m-%d").strftime("%d-%m-%Y")
     # Map of placeholders to replacement values
     replacements = {
         '{{promoter_name}}': promoter_name,
@@ -569,6 +637,13 @@ def update_consent_Extension_Tabular(promoter_name, project_name, registration_n
             for cell in row.cells:
                 replace_text_with_bold(cell.paragraphs, replacements)
 
+    # Set Aptos font everywhere
+    set_aptos_font(doc.paragraphs)
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                set_aptos_font(cell.paragraphs)
+
     sanitized_name = promoter_name.replace(" ", "_")
     filename = f"{sanitized_name}_Consent for Extension.docx"
     output_path = os.path.join(output_folder, filename)
@@ -586,7 +661,7 @@ def update_Declaration_For_Extension(promoter_name, project_name, registration_n
     output_folder = os.path.join('generated', 'DeclarationExtension')
     os.makedirs(output_folder, exist_ok=True)
 
-    extension_date = datetime.strptime(extension_date, "%d-%m-%Y").strftime("%d-%m-%Y")
+    extension_date = datetime.strptime(extension_date, "%Y-%m-%d").strftime("%d-%m-%Y")
 
     doc = Document(template_path)
 
@@ -634,6 +709,13 @@ def update_Declaration_For_Extension(promoter_name, project_name, registration_n
             for cell in row.cells:
                 replace_text_with_bold(cell.paragraphs, replacements)
 
+    # Set Aptos font everywhere
+    set_aptos_font(doc.paragraphs)
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                set_aptos_font(cell.paragraphs)
+
     sanitized_name = promoter_name.replace(" ", "_")
     filename = f"{sanitized_name}_Declaration For Extension.docx"
     output_path = os.path.join(output_folder, filename)
@@ -651,7 +733,7 @@ def update_FormB_File(promoter_name, project_name, office_address, extension_dat
     output_folder = os.path.join('generated', 'FORM_B')
     os.makedirs(output_folder, exist_ok=True)
 
-    extension_date = datetime.strptime(extension_date, "%d-%m-%Y").strftime("%d-%m-%Y")
+    extension_date = datetime.strptime(extension_date, "%Y-%m-%d").strftime("%d-%m-%Y")
     doc = Document(template_path)
 
     # Map of placeholders to replacement values
@@ -699,6 +781,13 @@ def update_FormB_File(promoter_name, project_name, office_address, extension_dat
             for cell in row.cells:
                 replace_text_with_bold(cell.paragraphs, replacements)
 
+    # Set Aptos font everywhere
+    set_aptos_font(doc.paragraphs)
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                set_aptos_font(cell.paragraphs)
+
     sanitized_name = promoter_name.replace(" ", "_")
     filename = f"{sanitized_name}_Form_B.docx"
     output_path = os.path.join(output_folder, filename)
@@ -711,7 +800,7 @@ def update_FormatA_File(promoter_name, project_name, project_address, account_na
     import os
     from datetime import datetime
 
-    date = datetime.strptime(date, "%d-%m-%Y").strftime("%d-%m-%Y")
+    date = datetime.strptime(date, "%Y-%m-%d").strftime("%d-%m-%Y")
 
     template_path = os.path.join('resources', 'Format A.docx')
     output_folder = os.path.join('generated', 'Format_A')
@@ -769,6 +858,13 @@ def update_FormatA_File(promoter_name, project_name, project_address, account_na
             for cell in row.cells:
                 replace_text_with_bold(cell.paragraphs, replacements)
 
+    # Set Aptos font everywhere
+    set_aptos_font(doc.paragraphs)
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                set_aptos_font(cell.paragraphs)
+
     sanitized_name = promoter_name.replace(" ", "_")
     filename = f"{sanitized_name}_Format_A.docx"
     output_path = os.path.join(output_folder, filename)
@@ -782,7 +878,7 @@ def update_FormatD_File(promoter_name, project_name, project_address, planning_a
     import os
     from datetime import datetime
 
-    date = datetime.strptime(date, "%d-%m-%Y").strftime("%d-%m-%Y")
+    date = datetime.strptime(date, "%Y-%m-%d").strftime("%d-%m-%Y")
 
     template_path = os.path.join('resources', 'FORMAT D.docx')
     output_folder = os.path.join('generated', 'Format_D')
@@ -836,6 +932,13 @@ def update_FormatD_File(promoter_name, project_name, project_address, planning_a
             for cell in row.cells:
                 replace_text_with_bold(cell.paragraphs, replacements)
 
+    # Set Aptos font everywhere
+    set_aptos_font(doc.paragraphs)
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                set_aptos_font(cell.paragraphs)
+
     sanitized_name = promoter_name.replace(" ", "_")
     filename = f"{sanitized_name}_Format_D.docx"
     output_path = os.path.join(output_folder, filename)
@@ -848,8 +951,8 @@ def update_Consent_Letter(promoter_name, office_address, project_name, registrat
     import os
     from datetime import datetime
 
-    date = datetime.strptime(date, "%d-%m-%Y").strftime("%d-%m-%Y")
-    extension_date = datetime.strptime(extension_date, "%d-%m-%Y").strftime("%d-%m-%Y")
+    date = datetime.strptime(date, "%Y-%m-%d").strftime("%d-%m-%Y")
+    extension_date = datetime.strptime(extension_date, "%Y-%m-%d").strftime("%d-%m-%Y")
     template_path = os.path.join('resources', 'Consent Letter.docx')
     output_folder = os.path.join('generated', 'ConsentLetter')
     os.makedirs(output_folder, exist_ok=True)
@@ -903,6 +1006,13 @@ def update_Consent_Letter(promoter_name, office_address, project_name, registrat
             for cell in row.cells:
                 replace_text_with_bold(cell.paragraphs, replacements)
 
+    # Set Aptos font everywhere
+    set_aptos_font(doc.paragraphs)
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                set_aptos_font(cell.paragraphs)
+
     sanitized_name = promoter_name.replace(" ", "_")
     filename = f"{sanitized_name}Consent Letter.docx"
     output_path = os.path.join(output_folder, filename)
@@ -915,7 +1025,7 @@ def update_form1(promoter_name, office_address, project_name, registration_no, a
     import os
     from datetime import datetime
 
-    date = datetime.strptime(date, "%d-%m-%Y").strftime("%d-%m-%Y")
+    date = datetime.strptime(date, "%Y-%m-%d").strftime("%d-%m-%Y")
 
     template_path = os.path.join('resources', 'Form 1.docx')
     output_folder = os.path.join('generated', 'Form1')
@@ -969,6 +1079,13 @@ def update_form1(promoter_name, office_address, project_name, registration_no, a
             for cell in row.cells:
                 replace_text_with_bold(cell.paragraphs, replacements)
 
+    # Set Aptos font everywhere
+    set_aptos_font(doc.paragraphs)
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                set_aptos_font(cell.paragraphs)
+
     sanitized_name = promoter_name.replace(" ", "_")
     filename = f"{sanitized_name} Form1.docx"
     output_path = os.path.join(output_folder, filename)
@@ -987,7 +1104,7 @@ def update_form2a(promoter_name, office_address, project_name, registration_no, 
     os.makedirs(output_folder, exist_ok=True)
 
     # Convert input date to datetime
-    base_date = datetime.strptime(base_date, "%d-%m-%Y")
+    base_date = datetime.strptime(base_date, "%Y-%m-%d")
     today = datetime.today()
 
     # ✅ Determine start financial year based on base_date
@@ -1054,6 +1171,13 @@ def update_form2a(promoter_name, office_address, project_name, registration_no, 
                 for cell in row.cells:
                     replace_text_with_bold(cell.paragraphs, replacements)
 
+        # Set Aptos font everywhere
+        set_aptos_font(doc.paragraphs)
+        for table in doc.tables:
+            for row in table.rows:
+                for cell in row.cells:
+                    set_aptos_font(cell.paragraphs)
+
         sanitized_name = promoter_name.replace(" ", "_")
         filename = f"{sanitized_name}_Form2A_{financial_year_str}.docx"
         output_path = os.path.join(output_folder, filename)
@@ -1070,7 +1194,7 @@ def index():
         planning_authority = request.form['planning_authority']
         reg_no = request.form['registration_no']
         # Use today's date instead of taking from form
-        date = datetime.today().strftime('%d-%m-%Y')
+        date = datetime.today().strftime('%Y-%m-%d')
         extension_date = request.form['extension_date']
         office_add = request.form['office_address']
         project_add = request.form['project_address']
@@ -1079,7 +1203,8 @@ def index():
         bank = request.form['bank_name']
         branch = request.form['branch_name']
         ifsc = request.form['ifsc_code']
-        as_on_date = request.form['as_on_date']
+        as_on_date_raw = request.form['as_on_date']
+        as_on_date = datetime.strptime(as_on_date_raw, "%Y-%m-%d").strftime("%d-%m-%Y")
         financial_year_date = request.form['financial_year_date']
 
 
