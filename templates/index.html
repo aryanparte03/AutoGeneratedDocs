@@ -2,214 +2,402 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InstaRERA</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/complaint_form.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document Bundle Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='complaint_form.css') }}">
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+        :root {
+          --clr-primary: #5865f2;
+          --clr-primary-dark: #4752c4;
+          --clr-background: #f9fbff;
+          --clr-card-bg: #ffffff;
+          --clr-border: #d5dbf2;
+          --clr-text-primary: #1e2233;
+          --clr-text-secondary: #6c7293;
+          --clr-success: #27ae60;
+          --clr-error: #e74c3c;
+          --shadow-light: 0 6px 20px rgba(88, 101, 242, 0.15);
+          --shadow-focus: 0 0 10px 3px rgba(88, 101, 242, 0.35);
+          --radius: 16px;
+          --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Reset & basics */
+        * {
+          box-sizing: border-box;
+        }
+        body {
+          font-family: 'Inter', sans-serif;
+          background: var(--clr-background);
+          margin: 0;
+          color: var(--clr-text-primary);
+          -webkit-font-smoothing: antialiased;
+          min-height: 100vh;
+          display: flex;
+          justify-content: center;
+          align-items: flex-start;
+          padding: 40px 10px 80px;
+        }
+
+        /* Container */
+        .container {
+          background: var(--clr-card-bg);
+          border-radius: var(--radius);
+          width: 100%;
+          max-width: 900px;  /* <-- wider than before */
+          box-shadow: var(--shadow-light);
+          padding: 40px 48px 48px;
+          user-select: none;
+          margin: 4px auto;
+        }
+        @media (max-width: 700px) {
+          .container {
+            max-width: 98vw;
+            padding: 16px 6vw;
+            margin: 10px auto;
+          }
+        }
+
+        /* Title */
+        h1.page-title {
+          font-weight: 700;
+          font-size: 2.3rem;
+          letter-spacing: -0.02em;
+          margin-bottom: 3rem;
+          color: var(--clr-primary-dark);
+          text-align: center;
+        }
+
+        /* Step Title */
+        .step-title {
+          font-weight: 700;
+          font-size: 1.5rem;
+          color: var(--clr-primary-dark);
+          margin-bottom: 1.4rem;
+          border-left: 6px solid var(--clr-primary);
+          padding-left: 0.9rem;
+          user-select: text;
+        }
+
+        /* Document List - compact grid fitting landscape */
+        .doc-list {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr); /* Two columns only */
+          gap: 1.1rem 1.2rem;  /* vertical and horizontal gap */
+          margin-bottom: 1.5rem;
+          max-width: 100%;
+        }
+
+        /* Hide descriptions completely */
+        .doc-desc {
+          display: none !important;
+        }
+
+        /* Document cards smaller and minimal */
+        .doc-item {
+          background: #f8faff;
+          border: 1.7px solid var(--clr-border);
+          border-radius: 12px;
+          padding: 0.65rem 0.85rem;
+          min-height: 38px;
+          cursor: pointer;
+          box-shadow: 0 2px 8px rgba(88, 101, 242, 0.05);
+          transition:
+            border-color var(--transition),
+            box-shadow var(--transition),
+            background var(--transition);
+          display: flex;
+          align-items: center;
+          position: relative;
+          font-size: 0.9rem;
+          color: var(--clr-primary-dark);
+          user-select: text;
+        }
+
+        /* Hover and selected styles */
+        .doc-item:hover,
+        .doc-item.selected {
+          border-color: var(--clr-primary);
+          background: #e7efff;
+          box-shadow: 0 6px 20px rgba(88, 101, 242, 0.15);
+        }
+
+        /* Checkbox smaller */
+        .doc-item input[type='checkbox'] {
+          width: 13px;
+          height: 13px;
+          margin-right: 7px;
+          accent-color: var(--clr-primary);
+          cursor: pointer;
+        }
+
+        /* Document name */
+        .doc-item > span:first-of-type {
+          font-weight: 600;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          user-select: text;
+          line-height: 1.1;
+        }
+
+        /* Form Section */
+        .form-section {
+          margin-top: 2.4rem;
+        }
+        .form-group {
+          margin-bottom: 2rem;
+          position: relative;
+          user-select: text;
+        }
+        .form-label {
+          font-size: 1.04rem;
+          color: var(--clr-primary-dark);
+          font-weight: 600;
+          margin-bottom: 0.5rem;
+          display: block;
+          letter-spacing: 0.02em;
+        }
+        .form-control {
+          width: 100%;
+          font-size: 1.12rem;
+          padding: 0.8rem 1rem 0.65rem 1rem;
+          border-radius: 10px;
+          border: 2.3px solid var(--clr-border);
+          background: var(--clr-background);
+          color: var(--clr-text-primary);
+          font-weight: 500;
+          transition: border-color 0.3s, box-shadow 0.3s;
+          outline-offset: 4px;
+          outline: none;
+          font-family: 'Inter', sans-serif;
+          user-select: text;
+        }
+        .form-control:hover {
+          border-color: var(--clr-primary);
+          box-shadow: 0 0 8px var(--clr-primary);
+        }
+        .form-control:focus {
+          border-color: var(--clr-primary);
+          box-shadow: var(--shadow-focus);
+          background: #fcfdff;
+        }
+
+        /* Summary Bar */
+        .summary-bar {
+          font-size: 1.14rem;
+          font-weight: 600;
+          color: var(--clr-success);
+          margin-bottom: 1.5em;
+          text-align: center;
+          letter-spacing: 0.02em;
+        }
+
+        /* Error Message */
+        .error-message {
+          background-color: #fff3f3;
+          border-radius: 12px;
+          padding: 0.9em 1.3em;
+          font-size: 1.1rem;
+          color: var(--clr-error);
+          font-weight: 700;
+          margin-top: 1.35em;
+          margin-bottom: 0;
+          user-select: none;
+        }
+
+        /* Submit Button */
+        .btn-generate {
+          width: 100%;
+          background: linear-gradient(70deg, var(--clr-primary) 75%, var(--clr-primary-dark) 100%);
+          border: none;
+          border-radius: 16px;
+          box-shadow: 0 5px 22px rgba(72, 107, 218, 0.4);
+          padding: 1.1rem 3rem;
+          font-weight: 800;
+          font-size: 1.3rem;
+          color: #fff;
+          cursor: pointer;
+          transition: background 0.3s ease, transform 0.22s ease;
+          letter-spacing: 0.06em;
+          margin-top: 1.5rem;
+          user-select: none;
+        }
+        .btn-generate:hover,
+        .btn-generate:focus {
+          background: linear-gradient(135deg, var(--clr-primary-dark) 40%, var(--clr-primary) 105%);
+          transform: translateY(-3px);
+          box-shadow: 0 12px 42px rgba(72, 107, 218, 0.6);
+        }
+
+        /* Responsive tweaks */
+        @media (max-width: 620px) {
+          .doc-list {
+            grid-template-columns: 1fr 1fr;
+            gap: 8px 16px;
+          }
+        }
+        @media (max-width: 400px) {
+          .doc-list {
+            grid-template-columns: 1fr;
+            gap: 8px 0;
+          }
+        }
+
+        /* Accessibility focus */
+        .form-control:focus-visible {
+          outline: 3px solid var(--clr-primary);
+          outline-offset: 2px;
+        }
+        .doc-item input[type='checkbox']:focus-visible {
+          outline: 3px solid var(--clr-primary);
+          outline-offset: 2px;
+        }
+
+
+    </style>
 </head>
-
-    <body>
-    <nav class="navbar navbar-expand-lg">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/">InstaRERA – Instant RERA-Ready Documents</a>
+<body>
+<div class="container">
+  <div class="card p-4">
+    <h1 class="page-title" style="margin-bottom:1.1rem;">CLIENT FILES GENERATOR</h1>
+    <form id="docGenForm" method="post">
+        <!-- Step 1: Choose Docs  -->
+        <div class="step-title">1. Select Documents <span style="font-weight:400;font-size:.84em;">(choose one or more)</span></div>
+        <div class="doc-list">
+            {% for doc in documents %}
+            <label class="doc-item" id="docitem_{{ doc.key }}">
+                <input type="checkbox" name="documents" value="{{ doc.key }}">
+                <span style="font-weight:600;" id="{{ doc.key }}_label">{{ doc.name }}</span>
+                <div class="doc-desc" id="{{ doc.key }}_desc">
+                  {% if doc.key == 'complaint_declaration' %}
+                    Basic project complaint declaration (required for RERA filing)
+                  {% elif doc.key == 'extension_application' %}
+                    For seeking a project extension under RERA Section 7(3)
+                  {% elif doc.key == 'no_complaint_declaration' %}
+                    Affidavit there are no pending complaints for the project
+                  {% elif doc.key == 'project_pert' %}
+                    Project progress schedule (PERT format)
+                  {% elif doc.key == 'cersai_declaration' %}
+                    CERSAI charge status declaration for project/office
+                  {% elif doc.key == 'authorisation_letter' %}
+                    Authorization by promoter to agent/authorized person
+                  {% elif doc.key == 'annexure_a' %}
+                    Statutory declaration required as Annexure A
+                  {% elif doc.key == 'affidavit_reason_for_extension' %}
+                    Affidavit stating genuine reasons for extension
+                  {% elif doc.key == 'consent_extension_tabular' %}
+                    Allottees’ consent statement (tabular format)
+                  {% elif doc.key == 'declaration_extension' %}
+                    Declaration for extension period as per RERA notification
+                  {% elif doc.key == 'form_b' %}
+                    Format B – RERA standard document for extension
+                  {% elif doc.key == 'format_a' %}
+                    Format A – RERA format, includes escrow details
+                  {% elif doc.key == 'format_d' %}
+                    Format D – submission to planning authority
+                  {% elif doc.key == 'consent_letter' %}
+                    Letter format of allottees’ or stakeholders’ consent
+                  {% elif doc.key == 'form1' %}
+                    Form 1 – CA certificate/affidavit in RERA process
+                  {% elif doc.key == 'form2a' %}
+                    Engineer’s development certificate(s) for each financial year
+                  {% else %}
+                    Document in extension bundle
+                  {% endif %}
+                </div>
+            </label>
+            {% endfor %}
         </div>
-    </nav>
 
-    <div class="container">
-        <div class="card shadow">
-            <div class="p-4">
-                <h3 class="page-title">CLIENT FILES GENERATOR</h3>
-                <form method="POST" id="complaintForm" onsubmit="handleSubmit(event)">
-                    <!-- Project Information Section -->
-                    <div class="form-group">
-                        <label class="form-label">
-                            <i class="fas fa-building me-2"></i>Promoter Name
-                        </label>
-                        <div class="input-group">
-                            <input type="text" name="promoter_name" class="form-control with-icon" required placeholder="Enter promoter name">
-                            <i class="fas fa-user input-icon"></i>
-                        </div>
-                    </div>
+        <!-- Step 2: Only required fields  -->
+        <div class="step-title">2. Enter Project/Promoter Details</div>
+        <div class="summary-bar" id="requiredFieldsBar"></div>
+        <div class="form-section" id="dynamic-fields"></div>
+        <div class="error-message hidden" id="ui_error"></div>
+        <button type="submit" class="btn-generate" style="margin-top:1.2rem;">Generate ZIP</button>
+    </form>
+  </div>
+</div>
+<script>
+const docInputMapping = {{ doc_inputs_json | safe }};
+const prettyNames = {
+    promoter_name: "Promoter Name",
+    project_name: "Project Name",
+    office_address: "Office Address",
+    project_address: "Project Address",
+    planning_authority: "Planning Authority",
+    registration_no: "Registration Number",
+    extension_date: "Extension Date",
+    date: "Date",
+    account_name: "Account Name",
+    account_number: "Account Number",
+    bank_name: "Bank Name",
+    branch_name: "Branch Name",
+    ifsc_code: "IFSC Code",
+    as_on_date: "As On Date (dd-mm-yyyy)",
+    financial_year_date: "Financial Year Start Date"
+};
 
-                    <div class="form-group">
-                        <label class="form-label">
-                            <i class="fas fa-project-diagram me-2"></i>Project Name
-                        </label>
-                        <div class="input-group">
-                            <input type="text" name="project_name" class="form-control with-icon" required placeholder="Enter project name">
-                            <i class="fas fa-home input-icon"></i>
-                        </div>
-                    </div>
+// Show summary of fields required
+function updateRequiredSummary(fields) {
+    if (fields.length === 0) {
+        $("#requiredFieldsBar").text("Select one or more documents above.");
+    } else {
+        $("#requiredFieldsBar").html("Required fields: <b>" + fields.map(f => prettyNames[f] || f).join(", ") + "</b>");
+    }
+}
 
-                    <div class="form-group">
-                        <label class="form-label">
-                            <i class="fas fa-project-diagram me-2"></i>Planning Authority
-                        </label>
-                        <div class="input-group">
-                            <input type="text" name="planning_authority" class="form-control with-icon" required placeholder="Enter project name">
-                            <i class="fas fa-home input-icon"></i>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">
-                            <i class="fas fa-certificate me-2"></i>Registration No
-                        </label>
-                        <div class="input-group">
-                            <input type="text" name="registration_no" class="form-control with-icon" required placeholder="Enter registration number">
-                            <i class="fas fa-id-card input-icon"></i>
-                        </div>
-                    </div>
-
-
-                    <div class="form-group">
-                        <label class="form-label">
-                            <i class="fas fa-calendar-check me-2"></i>Extension Till Date
-                        </label>
-                        <input type="date" name="extension_date" class="form-control" required>
-                    </div>
-
-
-                    <div class="form-group">
-                        <label class="form-label">
-                            <i class="fas fa-certificate me-2"></i>Office Address
-                        </label>
-                        <div class="input-group">
-                            <input type="text" name="office_address" class="form-control with-icon" required placeholder="Enter Office Address">
-                            <i class="fas fa-id-card input-icon"></i>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">
-                            <i class="fas fa-certificate me-2"></i>Project Address
-                        </label>
-                        <div class="input-group">
-                            <input type="text" name="project_address" class="form-control with-icon" required placeholder="Enter Project Address">
-                            <i class="fas fa-id-card input-icon"></i>
-                        </div>
-                    </div>
-
-                <div class="form-group">
-                    <label class="form-label">
-                        <i class="fas fa-user me-2"></i>Account Name
-                    </label>
-                    <div class="input-group">
-                        <input type="text" name="account_name" class="form-control with-icon" required placeholder="Enter Account Name">
-                        <i class="fas fa-user input-icon"></i>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">
-                        <i class="fas fa-hashtag me-2"></i>Account Number
-                    </label>
-                    <div class="input-group">
-                        <input type="text" name="account_number" class="form-control with-icon" required placeholder="Enter Account Number">
-                        <i class="fas fa-hashtag input-icon"></i>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">
-                        <i class="fas fa-university me-2"></i>Bank Name
-                    </label>
-                    <div class="input-group">
-                        <input type="text" name="bank_name" class="form-control with-icon" required placeholder="Enter Bank Name">
-                        <i class="fas fa-university input-icon"></i>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">
-                        <i class="fas fa-code-branch me-2"></i>Branch Name
-                    </label>
-                    <div class="input-group">
-                        <input type="text" name="branch_name" class="form-control with-icon" required placeholder="Enter Branch Name">
-                        <i class="fas fa-code-branch input-icon"></i>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">
-                        <i class="fas fa-key me-2"></i>IFSC Code
-                    </label>
-                    <div class="input-group">
-                        <input type="text" name="ifsc_code" class="form-control with-icon" required placeholder="Enter IFSC Code">
-                        <i class="fas fa-key input-icon"></i>
-                    </div>
-                </div>
-
-
-                <div class="form-group">
-                    <label class="form-label">
-                        <i class="fas fa-calendar-check me-2"></i>As On Date[Form1]
-                    </label>
-                    <input type="date" name="as_on_date" class="form-control" required>
-                </div>
-
-
-                <div class="form-group">
-                    <label class="form-label">
-                        <i class="fas fa-calendar-alt me-2"></i>Registration Date for Form 2A [If registrations is done before 01/04/2019 then the date will be 01/04/2019]
-                    </label>
-                    <input type="date" name="financial_year_date" class="form-control" required>
-                </div>
-
-                    <button type="submit" class="btn-generate" id="generateBtn">
-                        <i class="fas fa-download"></i>
-                        Generate & Download All Files
-                    </button>
-                </form>
-            </div>
+function getFieldHtml(field, label, required=true) {
+    let type = "text";
+    if (field.includes('date') || field === "extension_date" || field === "as_on_date" || field === "financial_year_date") type = "date";
+    if (["account_number", "registration_no"].includes(field)) type = "text";
+    if (field === "ifsc_code") type = "text"; // enforce strict format via backend if needed
+    return `
+        <div class="form-group" data-field="${field}">
+            <label class="form-label" for="${field}">${label}${required ? " *" : ""}</label>
+            <input type="${type}" class="form-control" name="${field}" id="${field}" ${required ? "required" : ""} autocomplete="off">
         </div>
-    </div>
+    `;
+}
 
-        <!-- Professional Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <p class="footer-text">
-                    <i class="fas fa-copyright me-2"></i>
-                    2025 ADITYA MURALI & ARYAN PARTE.<br>All Rights Reserved
-                </p>
-            </div>
-        </div>
-    </footer>
+// Only show doc fields for checked docs (no duplicates)
+function updateFields() {
+    let checked = $("input[name='documents']:checked").map((_, el) => $(el).val()).get();
+    $(".doc-item").removeClass("selected");
+    checked.forEach(doc => {$("#docitem_"+doc).addClass("selected");});
+    let fields = [];
+    checked.forEach(k => (docInputMapping[k]||[]).forEach(f => {if (!fields.includes(f)) fields.push(f); }));
+    updateRequiredSummary(fields);
+    let html = '';
+    for (let f of fields) { html += getFieldHtml(f, prettyNames[f] || f.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())); }
+    $("#dynamic-fields").html(html);
+}
 
-        <script>
-            function handleSubmit(event) {
-                const form = document.getElementById('complaintForm');
-                const btn = document.getElementById('generateBtn');
+$(document).on('change', "input[name='documents']", updateFields);
+$(document).ready(updateFields);
 
-                // Add loading state
-                btn.classList.add('loading');
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating Files...';
-
-                // Add form animation
-                form.classList.add('form-submitted');
-
-                // Reset form after delay
-                setTimeout(() => {
-                    form.reset();
-                    btn.classList.remove('loading');
-                    btn.innerHTML = '<i class="fas fa-download"></i> Generate & Download All Files';
-                    form.classList.remove('form-submitted');
-                }, 2000);
-            }
-
-            // Add smooth focus transitions
-            document.querySelectorAll('.form-control').forEach(input => {
-                input.addEventListener('focus', function() {
-                    this.parentElement.style.transform = 'translateY(-2px)';
-                });
-
-                input.addEventListener('blur', function() {
-                    this.parentElement.style.transform = 'translateY(0)';
-                });
-            });
-        </script>
-    </body>
+// Friendly error on submit for empty field
+$("#docGenForm").on("submit", function(e) {
+    let checked = $("input[name='documents']:checked").length;
+    if (checked === 0) {
+        $("#ui_error").removeClass("hidden").text("Please select at least one document to generate.");
+        e.preventDefault();
+        return false;
+    }
+    let missing = false;
+    $("#dynamic-fields input[required]").each(function () {
+        if (!$(this).val()) missing = true;
+    });
+    if (missing) {
+        $("#ui_error").removeClass("hidden").text("Please fill all required fields.");
+        e.preventDefault();
+        return false;
+    }
+});
+</script>
+</body>
 </html>
-
